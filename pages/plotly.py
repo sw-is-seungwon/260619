@@ -92,7 +92,7 @@ if selected_tickers:
             fig.add_trace(go.Scatter(
                 x=df.index,
                 y=display_data,
-                mode='line',
+                mode='lines',
                 name=col,
                 hovertemplate=f"<b>{col}</b><br>날짜: %{{x}}<br>{yaxis_title}: {hovertemplate}<extra></extra>"
             ))
