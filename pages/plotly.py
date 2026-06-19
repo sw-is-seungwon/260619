@@ -15,7 +15,6 @@ st.title("📊 글로벌 시가총액 TOP 10 주식 대시보드 (최근 1년)")
 st.markdown("Streamlit과 Plotly를 활용하여 구성한 글로벌 TOP 10 기업의 최근 1년간 주가 변화 대시보드입니다.")
 
 # 2. 글로벌 시가총액 TOP 10 기업 데이터 정의 (티커 기준)
-# 2026년 상반기 기준 시가총액 상위 주요 기업 리스트
 TOP10_COMPANIES = {
     "NVIDIA (NVDA)": "NVDA",
     "Alphabet (GOOGL)": "GOOGL",
@@ -39,7 +38,7 @@ selected_company_names = st.sidebar.multiselect(
     default=list(TOP10_COMPANIES.keys())
 )
 
-# 데이터 비교 방식 선택 (절대 가격 vs 수익률 비교)
+# 데이터 비교 방식 선택 (실제 주가 vs 수익률 비교)
 chart_type = st.sidebar.radio(
     "차트 표시 방식:",
     ("실제 주가 (USD/SAR)", "누적 수익률 (%)")
@@ -76,21 +75,28 @@ if selected_tickers:
     if not df.empty:
         # 5. Plotly를 이용한 시각화
         fig = go.Figure()
+        yaxis_title = "주가 (원래 통화 기준)"  # 기본값 설정
         
         for col in df.columns:
+            clean_series = df[col].dropna()
+            
+            # 특정 기업의 데이터가 완전히 비어있다면 차트 작성을 건너뜀 (IndexError 방지)
+            if clean_series.empty:
+                continue
+                
             if chart_type == "누적 수익률 (%)":
-                clean_series = df[col].dropna()
-            # 데이터가 비어있지 않은 경우에만 계산 진행
-                if not clean_series.empty:
-                    initial_price = clean_series.iloc[0]
-                    display_data = ((df[col] - initial_price) / initial_price) * 100
-                else:
-                # 데이터가 없다면 그냥 원본 데이터(비어있음) 사용
-                    display_data = df[col]
-        
+                # 첫 번째 거래일 기준 누적 수익률 계산
+                initial_price = clean_series.iloc[0]
+                display_data = ((df[col] - initial_price) / initial_price) * 100
                 yaxis_title = "누적 수익률 (%)"
                 hovertemplate = "%{y:.2f}%"
+            else:
+                # 실제 주가 모드
+                display_data = df[col]
+                yaxis_title = "주가 (원래 통화 기준)"
+                hovertemplate = "$%{y:.2f}" if "Aramco" not in col else "%{y:.2f} SAR"
             
+            # 안전하게 정의된 데이터를 Plotly 차트에 추가 (mode='lines' 적용 완료)
             fig.add_trace(go.Scatter(
                 x=df.index,
                 y=display_data,
@@ -116,7 +122,6 @@ if selected_tickers:
         # 6. 최근 데이터 테이블 및 통계 요약
         st.subheader("📋 최근 주가 요약 데이터")
         
-        # 최신 주가와 1년 전 대비 등락률을 요약 데이터프레임으로 표현
         summary_list = []
         for col in df.columns:
             valid_series = df[col].dropna()
@@ -131,8 +136,11 @@ if selected_tickers:
                     "1년간 등락률": f"{pct_change:+.2f}%"
                 })
         
-        summary_df = pd.DataFrame(summary_list)
-        st.dataframe(summary_df, use_container_width=True, hide_index=True)
+        if summary_list:
+            summary_df = pd.DataFrame(summary_list)
+            st.dataframe(summary_df, use_container_width=True, hide_index=True)
+        else:
+            st.info("요약 데이터를 표시할 수 없습니다.")
         
     else:
         st.warning("가져온 데이터가 없습니다. 선택한 기업을 다시 확인해 주세요.")
