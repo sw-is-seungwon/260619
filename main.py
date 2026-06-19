@@ -1,23 +1,27 @@
 import streamlit as st
 
-# 1. 페이지 기본 설정 (가장 위에 위치해야 합니다!)
+# 1. 페이지 기본 설정 (무조건 최상단에 위치해야 합니다!)
 st.set_page_config(
     page_title="🌟몽글몽글 MBTI 진로 탐험대🌟",
     page_icon="🚀",
     layout="centered",
 )
 
-# 2. 귀여운 커스텀 CSS 스타일 적용 (화려하고 아기자기한 느낌)
-st.markdown(
+# 2. 에러 유발 가능성을 완전히 제거한 안전한 스타일 적용 방식
+st.html(
     """
     <style>
     .main {
         background-color: #F9F7F7;
     }
-    h1 {
+    .main-title {
         color: #FF6B6B;
         text-align: center;
         font-family: 'Comic Sans MS', sans-serif;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 5px;
     }
     .sub-title {
         text-align: center;
@@ -32,17 +36,23 @@ st.markdown(
         border-radius: 15px;
         box-shadow: 0px 4px 15px rgba(255, 107, 107, 0.2);
         border: 2px solid #FFD166;
+        margin-bottom: 20px;
     }
     .job-card {
         background: linear-gradient(135deg, #FFEEF0 0%, #E8F0FE 100%);
         padding: 15px;
         border-radius: 12px;
         margin-top: 10px;
+        margin-bottom: 10px;
         border-left: 5px solid #FF6B6B;
     }
+    .footer-text {
+        text-align: center; 
+        color: #aaa; 
+        font-size: 0.8rem;
+    }
     </style>
-    """,
-    unsafe_allow_index=True,
+    """
 )
 
 # 3. MBTI별 진로 데이터 (학생 맞춤형)
@@ -54,7 +64,7 @@ mbti_jobs = {
     },
     "ISFJ": {
         "title": "💖 따뜻하고 헌신적인 '수호자' 탐험가",
-        "jobs": ["👩‍⚕️ 간호사 및 의료인", "🏫 초등/유치원 교사", "🎨 사회복지사", "큐레이터"],
+        "jobs": ["👩‍⚕️ 간호사 및 의료인", "🏫 초등/유치원 교사", "🎨 사회복지사", "🖼️ 큐레이터"],
         "desc": "타인을 돕고 서포트하는 일에서 가장 큰 보람을 느껴요. 다정하고 섬세한 손길이 필요해요! 🧸",
     },
     "INFJ": {
@@ -79,7 +89,7 @@ mbti_jobs = {
     },
     "INFP": {
         "title": "🦄 이상을 꿈꾸는 '잔다르크' 탐험가",
-        "jobs": ["🎬 영화 감독", "🎨 웹툰 작가", "💌 카피라이터", " NGO 활동가"],
+        "jobs": ["🎬 영화 감독", "🎨 웹툰 작가", "💌 카피라이터", "🌍 NGO 활동가"],
         "desc": "마음속에 나만의 아름다운 세계를 품고 있어요. 가치 있는 일이나 창작 활동에서 큰 에너지를 얻어요. ✨",
     },
     "INTP": {
@@ -109,12 +119,12 @@ mbti_jobs = {
     },
     "ESTJ": {
         "title": "👑 완벽한 리더 '지휘관' 탐험가",
-        "jobs": ["🏢 대기업 관리자", "💼 프로젝트 매니저(PM)", "👨‍기자", "🏛️ 공무원"],
+        "jobs": ["🏢 대기업 관리자", "💼 프로젝트 매니저(PM)", "📰 기자", "🏛️ 공무원"],
         "desc": "체계적이고 조직적인 관리 능력의 끝판왕! 목표를 향해 사람들을 이끌고 결과를 만들어내는 데 탁월해요. 🏆",
     },
     "ESFJ": {
         "title": "🤝 모두에게 사랑받는 '마당발' 탐험가",
-        "jobs": ["🏫 교사/상담사", "🏨 호텔리어", "🤝 인사(HR) 담당자", " PR 전문가"],
+        "jobs": ["🏫 교사/상담사", "🏨 호텔리어", "🤝 인사(HR) 담당자", "📢 PR 전문가"],
         "desc": "공감 능력 만렙! 주변 사람들을 챙기고 조화로운 환경을 만드는 커뮤니티의 중심 리더예요. 💌",
     },
     "ENFJ": {
@@ -130,11 +140,8 @@ mbti_jobs = {
 }
 
 # 4. 메인 화면 구성
-st.markdown("<h1>🌟 몽글몽글 MBTI 진로 탐험대 🌟</h1>", unsafe_allow_index=True)
-st.markdown(
-    "<div class='sub-title'>나의 MBTI를 선택하고 미래의 멋진 내 직업을 찾아 떠나볼까요? 🚀✨</div>",
-    unsafe_allow_index=True,
-)
+st.html("<div class='main-title'>🌟 몽글몽글 MBTI 진로 탐험대 🌟</div>")
+st.html("<div class='sub-title'>나의 MBTI를 선택하고 미래의 멋진 내 직업을 찾아 떠나볼까요? 🚀✨</div>")
 
 # 풍선 효과로 화려하게 시작!
 st.balloons()
@@ -162,41 +169,22 @@ if selected_mbti in mbti_jobs:
     info = mbti_jobs[selected_mbti]
 
     # 귀여운 헤더 출력
-    st.markdown(
-        f"### 🎉 탐색 완료! 당신은 **{selected_mbti}** 타입이군요!"
-    )
+    st.markdown(f"### 🎉 탐색 완료! 당신은 **{selected_mbti}** 타입이군요!")
     st.success(f"**{info['title']}**")
 
     # 설명 레이아웃
-    st.markdown(
-        f"""
-        <div class='mbti-box'>
-            <p style='font-size: 1.1rem; line-height: 1.6;'>{info['desc']}</p>
-        </div>
-        """,
-        unsafe_allow_index=True,
-    )
+    st.html(f"<div class='mbti-box'><p style='font-size: 1.1rem; line-height: 1.6;'>{info['desc']}</p></div>")
 
     st.write("")
     st.markdown("#### 🛠️ 추천하는 찰떡궁합 직업군 LIST")
 
     # 추천 직업 리스트를 카드로 예쁘게 출력
     for job in info["jobs"]:
-        st.markdown(
-            f"""
-            <div class='job-card'>
-                <span style='font-size: 1.2rem; font-weight: bold;'>{job}</span>
-            </div>
-            """,
-            unsafe_allow_index=True,
-        )
+        st.html(f"<div class='job-card'><span style='font-size: 1.2rem; font-weight: bold;'>{job}</span></div>")
 
     # 추가 축하 효과!
     st.snow()
 
 # 7. 푸터 (Footer)
 st.write("---")
-st.markdown(
-    "<p style='text-align: center; color: #aaa; font-size: 0.8rem;'>🎈 멋진 미래의 주인공은 바로 당신! 꿈을 향해 나아가세요 🎈</p>",
-    unsafe_allow_index=True,
-)
+st.html("<div class='footer-text'>🎈 멋진 미래의 주인공은 바로 당신! 꿈을 향해 나아가세요 🎈</div>")
