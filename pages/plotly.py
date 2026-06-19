@@ -79,15 +79,17 @@ if selected_tickers:
         
         for col in df.columns:
             if chart_type == "누적 수익률 (%)":
-                # 첫 번째 거래일 기준 누적 수익률 계산
-                initial_price = df[col].dropna().iloc[0]
-                display_data = ((df[col] - initial_price) / initial_price) * 100
+                clean_series = df[col].dropna()
+            # 데이터가 비어있지 않은 경우에만 계산 진행
+                if not clean_series.empty:
+                    initial_price = clean_series.iloc[0]
+                    display_data = ((df[col] - initial_price) / initial_price) * 100
+                else:
+                # 데이터가 없다면 그냥 원본 데이터(비어있음) 사용
+                    display_data = df[col]
+        
                 yaxis_title = "누적 수익률 (%)"
                 hovertemplate = "%{y:.2f}%"
-            else:
-                display_data = df[col]
-                yaxis_title = "주가 (원래 통화 기준)"
-                hovertemplate = "$%{y:.2f}" if "Aramco" not in col else "%{y:.2f} SAR"
             
             fig.add_trace(go.Scatter(
                 x=df.index,
