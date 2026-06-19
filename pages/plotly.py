@@ -105,14 +105,24 @@ if selected_tickers:
                 hovertemplate=f"<b>{col}</b><br>날짜: %{{x}}<br>{yaxis_title}: {hovertemplate}<extra></extra>"
             ))
             
-        fig.update_layout(
+            fig.update_layout(
             title=f"글로벌 TOP 10 기업 주가 추이 ({chart_type})",
             xaxis_title="날짜",
             yaxis_title=yaxis_title,
             hovermode="x unified",
             template="plotly_white",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            margin=dict(l=20, r=20, t=60, b=20),
+            
+            # 1. 범례(Legend)를 차트 아래쪽(하단)으로 이동하여 겹침 방지
+            legend=dict(
+                orientation="h",     # 가로 방향 배열
+                yanchor="top",       # 기준점을 범례 상단으로
+                y=-0.15,             # 차트 아래쪽으로 배치 (마이너스 값)
+                xanchor="center",    # 가운데 정렬
+                x=0.5
+            ),
+            
+            # 2. 차트 여백 조정 (상단 여백을 확보하여 타이틀과 겹침 방지)
+            margin=dict(l=20, r=20, t=80, b=80), 
             height=600
         )
         
