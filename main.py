@@ -50,24 +50,54 @@ st.html(
         font-weight: bold;
         border: 1px solid #D2E3FC;
     }
-    .memo-box {
-        background-color: rgba(255, 255, 255, 0.6);
-        border-radius: 10px;
-        padding: 10px 15px;
-        margin-top: 5px;
-        border-left: 3px solid #77A605;
-        font-size: 0.95rem;
+    /* 더 예뻐진 방명록 메모 카드 스타일 */
+    .memo-card {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-left: 5px solid #FF8E9E;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .memo-header {
+        font-size: 1.05rem;
+        color: #444;
+        margin-bottom: 8px;
+    }
+    .memo-badge {
+        background-color: #FFF0F2;
+        color: #FF6B6B;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+    .memo-content {
+        font-size: 1rem;
+        color: #333;
+        line-height: 1.5;
     }
     </style>
     """
 )
 
-# 💾 DB 대신 사용하는 실시간 공용 메모 저장소 설정
+# 💾 실시간 공용 메모 저장소 데이터 구조 업데이트
 if "shared_memos" not in st.session_state:
     st.session_state["shared_memos"] = [
-        {"mbti": "ENFP", "text": "광고 기획자 너무 멋있어 보여요! 꼭 꿈을 이룰래요 🦋"},
-        {"mbti": "INTJ", "text": "AI 연구원이 되기 위해 오늘부터 수학 공부 돌입합니다 🤖"},
-        {"mbti": "ISFJ", "text": "아이들을 조용히 챙겨주는 초등교사가 제 천직인 것 같아요 🏫"}
+        {
+            "nickname": "체리블라썸 🌸", 
+            "mbti": "ENFP", 
+            "fav_job": "🎨 광고 기획자", 
+            "real_dream": "웹툰 작가 ✍️", 
+            "text": "광고 기획도 제 아이디어를 쓸 수 있어서 재밌을 것 같아요!"
+        },
+        {
+            "nickname": "코딩하는 새싹 🌱", 
+            "mbti": "INTJ", 
+            "fav_job": "🤖 AI 연구원", 
+            "real_dream": "화이트해커 💻", 
+            "text": "AI 연구원 설명 보니까 관련 학과인 컴퓨터공학과로 진학하고 싶어졌어요."
+        }
     ]
 
 # 3. MBTI별 상세 직업 데이터
@@ -254,7 +284,7 @@ st.write("---")
 if selected_mbti in mbti_info:
     res = mbti_info[selected_mbti]
     
-    # 🎨 성향 매칭 요약 가이드 (해시태그)
+    # 성향 매칭 요약 가이드 (해시태그)
     tags_html = "".join([f"<span class='tag'>{tag}</span>" for tag in res['tags']])
     
     st.html(f"""
@@ -267,34 +297,63 @@ if selected_mbti in mbti_info:
     
     st.markdown(f"#### 🌸 {selected_mbti}에게 추천하는 '찰떡' 직업 (클릭해 보세요!)")
     
+    # 직업 리스트 추출 (셀렉트박스 및 메모용)
+    job_list = list(res['jobs'].keys())
+    
     # 직업별 정보 출력 (Expander 형태)
     for job_name, job_detail in res['jobs'].items():
         with st.expander(f"{job_name}"):
             st.write(f"🔍 **직업 설명:** {job_detail['info']}")
             st.write(f"🎓 **관련 학과:** {job_detail['majors']}")
 
-    # 📝 7. 실시간 익명 메모장 (DB 없이 구현)
+    # 📝 7. 실시간 익명 진로 방명록 (상세 입력 버전)
     st.write("")
     st.write("---")
     st.markdown("#### 💬 친구들과 나누는 진로 한 줄 메모장")
     
-    # 메모 입력란
+    # 메모 입력란 (Form 구조)
     with st.form(key="memo_form", clear_on_submit=True):
-        user_memo = st.text_input(
-            f"나의 MBTI({selected_mbti})와 함께 다짐이나 소감을 한 줄 남겨보세요!", 
-            placeholder="예: 꼭 멋진 컴퓨터 공학자가 되어서 세상을 바꿀 거야! 🚀"
-        )
-        submit_button = st.form_submit_button(label="📌 메모 남기기")
+        col_inputs1, col_inputs2 = st.columns(2)
         
-        if submit_button and user_memo.strip():
-            # 사용자가 입력한 내용을 공유 세션 리스트에 추가
-            st.session_state["shared_memos"].append({"mbti": selected_mbti, "text": user_memo})
-            st.toast("📝 친구들과 볼 수 있도록 한 줄 메모를 등록했어요!", icon="✨")
+        with col_inputs1:
+            nick = st.text_input("👤 나의 닉네임", placeholder="예: 멋진꿈나무")
+            fav = st.selectbox("🎯 가장 맘에 드는 추천 직업", options=job_list)
+            
+        with col_inputs2:
+            dream = st.text_input("🌟 실제 나의 장래희망", placeholder="예: 과학자 (없다면 '탐색 중' 입력 가능)")
+            
+        memo_txt = st.text_input("✍️ 하고 싶은 한 마디", placeholder="진로에 대한 다짐이나 소감을 적어주세요!")
+        
+        submit_button = st.form_submit_button(label="📌 진로 카드 등록하기")
+        
+        # 유효성 검사 후 데이터 저장
+        if submit_button:
+            if not nick.strip() or not memo_txt.strip() or not dream.strip():
+                st.warning("⚠️ 모든 칸을 채워주셔야 진로 카드를 등록할 수 있어요!")
+            else:
+                st.session_state["shared_memos"].append({
+                    "nickname": nick,
+                    "mbti": selected_mbti,
+                    "fav_job": fav,
+                    "real_dream": dream,
+                    "text": memo_txt
+                })
+                st.toast("📝 친구들과 공유하는 진로 방명록에 등록되었어요!", icon="✨")
 
-    # 최근 등록된 순서대로 최대 5개까지 다른 사람들의 메모 노출
-    st.write("**🔽 친구들이 방금 남긴 한 줄 다짐 목록**")
+    # 다른 사람들이 남긴 메모 예쁜 디자인 카드 형태로 노출
+    st.write("**🔽 친구들의 생생한 진로 고민 및 다짐 목록**")
     for memo in reversed(st.session_state["shared_memos"][-5:]):
-        st.html(f"<div class='memo-box'><strong>[{memo['mbti']}]</strong> {memo['text']}</div>")
+        st.html(f"""
+            <div class='memo-card'>
+                <div class='memo-header'>
+                    <strong>{memo['nickname']}</strong> 
+                    <span class='memo-badge'>{memo['mbti']}</span> | 
+                    <span>🎯 추천 원픽: {memo['fav_job']}</span> | 
+                    <span>🌟 장래희망: {memo['real_dream']}</span>
+                </div>
+                <div class='memo-content'>“ {memo['text']} ”</div>
+            </div>
+        """)
 
 # 8. 푸터
 st.write("")
