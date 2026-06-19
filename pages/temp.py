@@ -178,7 +178,6 @@ with tab2:
                         f"- 최고 기온: **{max_row['최고기온(℃)']} ℃**\n"
                         f"- 당해 평균 기온: {max_row['평균기온(℃)']} ℃")
             with sum_col2:
-                st.beta_container if hasattr(st, 'beta_container') else st.container()
                 st.success(f"❄️ **가장 추웠던 해 ({min_row['연도']}년)**\n\n"
                            f"- 최저 기온: **{min_row['최저기온(℃)']} ℃**\n"
                            f"- 당해 평균 기온: {min_row['평균기온(℃)']} ℃")
