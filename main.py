@@ -1,4 +1,3 @@
-import streamlit as pd
 import streamlit as st
 
 # 1. 페이지 기본 설정 (가장 위에 위치해야 합니다!)
